@@ -1,0 +1,10 @@
+[package]
+name = "change-memory-value"
+version = "0.1.0"
+authors = ["Christoffer Lantz <christoffer.lantz@androidbutiken.net>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+winapi = { version = "*", features = ["winuser", "wingdi", "libloaderapi", "memoryapi", "winnt", "processthreadsapi", "tlhelp32", "impl-default"] }
