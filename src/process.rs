@@ -20,27 +20,27 @@ pub enum WindowHandleError {
 pub fn open_process(proc_id: u32) -> Result<*mut Handle, WindowHandleError> {
     let handle = unsafe { OpenProcess(PROCESS_ALL_ACCESS, 0, proc_id as DWORD) };
 
-    match handle != std::ptr::null_mut() {
-        true => Ok(handle),
-        false => Err(WindowHandleError::NoHandle),
+    if handle == std::ptr::null_mut() {
+        return Err(WindowHandleError::NoHandle);
     }
+
+    Ok(handle)
 }
 pub fn find_window(window_name: &str) -> Result<u32, WindowHandleError> {
     let hwnd: HWND = unsafe {
-        let window_name = match CString::new(window_name) {
-            Ok(value) => value,
-            Err(_) => return Err(WindowHandleError::Unknown),
-        };
+        let window_name = CString::new(window_name).map_err(|_| WindowHandleError::Unknown)?;
         FindWindowA(std::ptr::null(), window_name.as_ptr() as *const i8)
     };
     if hwnd.is_null() {
         return Err(WindowHandleError::NoWindow);
     }
     let proc_id = unsafe { GetWindowThreadProcessId(hwnd as HWND, std::ptr::null_mut()) };
-    match proc_id {
-        0 => Err(WindowHandleError::NoProcess),
-        id => Ok(id),
+
+    if proc_id == 0 {
+        return Err(WindowHandleError::NoProcess);
     }
+
+    Ok(proc_id)
 }
 pub unsafe fn get_process_name(process_entry: &PROCESSENTRY32) -> String {
     std::ffi::CStr::from_ptr(&process_entry.szExeFile[0])

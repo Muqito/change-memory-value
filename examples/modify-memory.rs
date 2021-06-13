@@ -1,8 +1,12 @@
 use std::ffi::CString;
 
+struct User {
+    id: i32,
+}
 fn main() {
     let program_name = CString::new("modify-memory.exe").unwrap();
     let mut value = -1;
+    let data = User { id: value };
     let ptr_x = &mut value as *mut i32;
     let module_addr =
         unsafe { winapi::um::libloaderapi::GetModuleHandleA(program_name.as_ptr() as *const i8) };
